@@ -1,0 +1,9 @@
+
+services:
+  temp-handler:
+    build:
+      context: .
+      dockerfile: lagoon/go.Dockerfile
+    labels:
+      lagoon.type: basic
+
