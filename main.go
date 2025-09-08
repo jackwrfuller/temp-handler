@@ -2,14 +2,26 @@ package main
 
 import (
 	"fmt"
-	"time"
+	"net/http"
+
+	"github.com/jackwrfuller/temp-handler/internal/controllers"
 )
 
 func main() {
 
-	for {
-		time.Sleep(1 * time.Second)
-		fmt.Println("Hello, world!")
+	c := controllers.NewBaseHandler()
 
+	router := http.NewServeMux()
+	router.HandleFunc("/", c.HandleRequests)
+
+	s := &http.Server{
+		Addr: fmt.Sprintf("%s:%s", "localhost", "3000"),
+		Handler: router,
 	}
+
+	fmt.Println("Starting server...")
+	if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		panic(err)
+	}
+
 }
