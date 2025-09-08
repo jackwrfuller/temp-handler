@@ -6,4 +6,7 @@ services:
       dockerfile: lagoon/go.Dockerfile
     labels:
       lagoon.type: basic
+      lagoon.service.usecomposeports: true
+    ports:
+      - "3000:3000"
 

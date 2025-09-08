@@ -15,7 +15,7 @@ func main() {
 	router.HandleFunc("/", c.HandleRequests)
 
 	s := &http.Server{
-		Addr: fmt.Sprintf("%s:%s", "localhost", "3000"),
+		Addr: ":3000",
 		Handler: router,
 	}
 
