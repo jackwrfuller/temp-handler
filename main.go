@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strings"
+	"os"
 
 	"github.com/jackwrfuller/temp-handler/internal/controllers"
 )
@@ -16,7 +18,7 @@ func main() {
 
 	s := &http.Server{
 		Addr: ":3000",
-		Handler: corsMiddleware(router),
+		Handler: corsMiddleware(authMiddleware(router)),
 	}
 
 	fmt.Println("Starting server...")
@@ -24,6 +26,31 @@ func main() {
 		panic(err)
 	}
 
+}
+
+func authMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		expectedToken := os.Getenv("ENDPOINT_TOKEN")
+		if expectedToken == "" {
+			http.Error(w, "Server not configured with ENDPOINT_TOKEN", http.StatusInternalServerError)
+			return
+		}
+
+		authHeader := r.Header.Get("Authorization")
+
+		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		token := strings.TrimPrefix(authHeader, "Bearer ")
+		if token != expectedToken {
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func corsMiddleware(next http.Handler) http.Handler {
