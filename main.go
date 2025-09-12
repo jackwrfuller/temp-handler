@@ -30,6 +30,10 @@ func main() {
 
 func authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/v1/status" {
+			next.ServeHTTP(w, r)
+			return
+		}
 		expectedToken := os.Getenv("ENDPOINT_TOKEN")
 		if expectedToken == "" {
 			http.Error(w, "Server not configured with ENDPOINT_TOKEN", http.StatusInternalServerError)
